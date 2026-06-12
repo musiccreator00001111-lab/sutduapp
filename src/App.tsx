@@ -258,6 +258,11 @@ export default function App() {
       const newLevel = Math.floor(newPoints / 100) + 1;
       const updatedBadges = [...prev.badges];
 
+      // Check for Level up badge or milestone badges
+      if (newLevel > prev.level) {
+        // Trigger generic badges if needed
+      }
+
       if (checkBadgeType === 'question') {
         const userQuestionsCount = chatMessages.filter(m => m.role === 'user').length + 1;
         if (userQuestionsCount >= 5 && !updatedBadges.some(b => b.badge_name === 'Quick Learner')) {
@@ -307,6 +312,7 @@ export default function App() {
           });
         }
 
+        // Daily Challenge early bird badge check
         const today = new Date().toISOString().split('T')[0];
         const quizzesTodayCount = progress.filter(p => {
           const checkDate = p.date ? p.date.split('T')[0] : '';
@@ -330,6 +336,7 @@ export default function App() {
         badges: updatedBadges
       };
 
+      // Keep Leaderboard entry updated as well
       setLeaderboard(lPrev => {
         const hasUser = lPrev.some(entry => entry.name === prev.name);
         if (hasUser) {
@@ -377,6 +384,7 @@ export default function App() {
         image: aiImage || undefined
       }]);
 
+      // Reward 10 points for learning interaction
       awardPointsAndCheckBadges(10, 'question');
 
     } catch (err) {
@@ -434,6 +442,7 @@ export default function App() {
     setIsAddingNote(false);
     setNewNote({ title: '', content: '', subject: 'Mathematics' });
 
+    // Reward points for making notes
     awardPointsAndCheckBadges(20, 'note');
   };
 
@@ -447,6 +456,7 @@ export default function App() {
       if (s.id === item.id) {
         const isNowCompleted = !s.completed;
         if (isNowCompleted) {
+          // Award 15 points on task completion
           setTimeout(() => {
             awardPointsAndCheckBadges(15, 'planner');
           }, 100);
@@ -508,6 +518,7 @@ export default function App() {
       setQuizScore(newScore);
       setQuizFinished(true);
 
+      // Save progress to learning progress list
       const finalProgress: Progress = {
         id: Date.now(),
         subject: quizSubject!,
@@ -517,6 +528,7 @@ export default function App() {
       };
       setProgress(prev => [finalProgress, ...prev]);
 
+      // Award 10 points per quiz correct answer
       awardPointsAndCheckBadges(newScore * 10, 'quiz', { score: newScore, total: quizQuestions.length });
     }
   };
@@ -568,6 +580,7 @@ export default function App() {
     };
 
     const currentGroupId = activeGroup.id;
+    const copiedText = groupChatInput;
 
     setGroupMessagesDict(prev => {
       const existing = prev[currentGroupId] || [];
@@ -575,12 +588,13 @@ export default function App() {
     });
     setGroupChatInput('');
 
+    // Simulate smart friendly mock classmate chats after 1.5 seconds!
     setTimeout(() => {
       const mockReplies = [
         `Thanks for sharing! Let's check this out.`,
         `Oh great, I was just reading about that topic as well!`,
         `That makes so much sense! Let's schedule a study call tonight.`,
-        `Cool study tip, Rohit! Added it to my planner too.`
+        `Cool study tip, रोहित! Added it to my planner too.`
       ];
       const randomReply = mockReplies[Math.floor(Math.random() * mockReplies.length)];
 
@@ -632,7 +646,7 @@ export default function App() {
             <p className="text-slate-500 text-sm">Level {user.level}</p>
             <div className="flex-1 max-w-[100px] h-1.5 bg-slate-100 rounded-full overflow-hidden">
               <div 
-                className="h-full bg-indigo-505" 
+                className="h-full bg-indigo-500" 
                 style={{ width: `${user.points % 100}%` }}
               />
             </div>
@@ -805,7 +819,7 @@ export default function App() {
           <button 
             onClick={handleSendMessage}
             disabled={isChatLoading}
-            className="p-3 bg-indigo-600 text-white rounded-2xl hover:bg-indigo-700 transition-colors disabled:opacity-50 shadow-lg shadow-indigo-105"
+            className="p-3 bg-indigo-600 text-white rounded-2xl hover:bg-indigo-700 transition-colors disabled:opacity-50 shadow-lg shadow-indigo-100"
           >
             <Send className="w-5 h-5" />
           </button>
@@ -906,7 +920,7 @@ export default function App() {
             <button 
               key={subject}
               onClick={() => startQuiz(subject)}
-              className="p-6 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-indigo-505 transition-all text-center group"
+              className="p-6 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-indigo-500 transition-all text-center group"
             >
               <div className="w-12 h-12 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-indigo-600 transition-colors">
                 <BookOpen className="w-6 h-6 text-indigo-600 group-hover:text-white" />
@@ -920,7 +934,7 @@ export default function App() {
           {isQuizLoading ? (
             <div className="py-20 text-center space-y-4">
               <Loader2 className="w-10 h-10 animate-spin text-indigo-600 mx-auto" />
-              <p className="text-slate-505">Generating your {quizSubject} quiz...</p>
+              <p className="text-slate-500">Generating your {quizSubject} quiz...</p>
             </div>
           ) : quizFinished ? (
             <div className="text-center py-10 space-y-6">
@@ -929,7 +943,7 @@ export default function App() {
               </div>
               <div>
                 <h3 className="text-2xl font-bold text-slate-800">Quiz Completed!</h3>
-                <p className="text-slate-505">You scored {quizScore} out of {quizQuestions.length}</p>
+                <p className="text-slate-500">You scored {quizScore} out of {quizQuestions.length}</p>
                 <p className="text-indigo-600 font-bold mt-2">+{quizScore * 10} Points Earned!</p>
               </div>
               <button 
@@ -957,7 +971,7 @@ export default function App() {
                   <button 
                     key={i}
                     onClick={() => handleQuizAnswer(i)}
-                    className="w-full p-4 text-left border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-indigo-505 transition-all text-slate-700"
+                    className="w-full p-4 text-left border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-indigo-500 transition-all text-slate-700"
                   >
                     {option}
                   </button>
@@ -981,7 +995,7 @@ export default function App() {
             className={`px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-colors ${
               new Date().toLocaleDateString('en-US', { weekday: 'long' }) === day 
               ? 'bg-indigo-600 text-white' 
-              : 'bg-slate-100 text-slate-505'
+              : 'bg-slate-100 text-slate-500'
             }`}
           >
             {day}
@@ -1104,7 +1118,7 @@ export default function App() {
             />
           </div>
         </div>
-        <p className="text-slate-505 mt-2 text-sm">{user.points} Total Points</p>
+        <p className="text-slate-500 mt-2 text-sm">{user.points} Total Points</p>
       </div>
 
       <section>
@@ -1118,7 +1132,7 @@ export default function App() {
               <div className="w-12 h-12 bg-indigo-50 rounded-full flex items-center justify-center border border-indigo-100">
                 <span className="text-xl">{badge.icon}</span>
               </div>
-              <span className="text-[10px] text-slate-505 text-center font-medium">{badge.badge_name}</span>
+              <span className="text-[10px] text-slate-500 text-center font-medium">{badge.badge_name}</span>
             </div>
           ))}
           {(!user.badges || user.badges.length === 0) && (
@@ -1235,7 +1249,7 @@ export default function App() {
                           placeholder="e.g. Physics Study Squad"
                           value={newGroup.name}
                           onChange={(e) => setNewGroup({...newGroup, name: e.target.value})}
-                          className="w-full p-3 bg-slate-50 rounded-xl border border-slate-205 focus:ring-2 focus:ring-indigo-500 outline-none"
+                          className="w-full p-3 bg-slate-50 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none"
                         />
                       </div>
                       <div>
@@ -1244,7 +1258,7 @@ export default function App() {
                           placeholder="What's this group about?"
                           value={newGroup.description}
                           onChange={(e) => setNewGroup({...newGroup, description: e.target.value})}
-                          className="w-full p-3 bg-slate-50 rounded-xl border border-slate-205 focus:ring-2 focus:ring-indigo-500 outline-none h-24 resize-none"
+                          className="w-full p-3 bg-slate-50 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none h-24 resize-none"
                         />
                       </div>
                     </div>
@@ -1304,7 +1318,7 @@ export default function App() {
               ) : (
                 <div className="space-y-4 pb-4">
                   <div className="flex justify-between items-center">
-                    <h3 className="font-bold text-slate-700 text-sm">Group Shared Study Notes</h3>
+                    <h3 className="font-bold text-slate-705 text-sm">Group Shared Study Notes</h3>
                     <button 
                       onClick={() => setIsAddingGroupNote(true)}
                       className="p-1.5 bg-indigo-100 text-indigo-600 hover:bg-indigo-200 rounded-lg flex items-center space-x-1"

@@ -4,6 +4,29 @@ import Database from "better-sqlite3";
 import path from "path";
 import { createServer } from "http";
 import { Server } from "socket.io";
+import dotenv from "dotenv";
+import { GoogleGenAI } from "@google/genai";
+
+dotenv.config();
+
+let aiClient: GoogleGenAI | null = null;
+function getGeminiClient(): GoogleGenAI {
+  if (!aiClient) {
+    const key = process.env.GEMINI_API_KEY;
+    if (!key) {
+      throw new Error("GEMINI_API_KEY environment variable is not defined on the server side.");
+    }
+    aiClient = new GoogleGenAI({
+      apiKey: key,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build',
+        }
+      }
+    });
+  }
+  return aiClient;
+}
 
 async function startServer() {
   const app = express();
@@ -296,6 +319,92 @@ async function startServer() {
 
       io.to(`group-${groupId}`).emit("note-updated", updatedNote);
     });
+  });
+
+  // Gemini AI endpoints
+  app.post("/api/gemini/answer", async (req, res) => {
+    try {
+      const { prompt, imageBase64 } = req.body;
+      const parts: any[] = [{ text: prompt }];
+      
+      if (imageBase64) {
+        parts.push({
+          inlineData: {
+            mimeType: "image/png",
+            data: imageBase64.split(',')[1] || imageBase64
+          }
+        });
+      }
+
+      const ai = getGeminiClient();
+      const response = await ai.models.generateContent({
+        model: "gemini-3.5-flash",
+        contents: { parts },
+        config: {
+          systemInstruction: "You are a helpful study assistant. Explain concepts clearly and provide step-by-step solutions. Support subjects like Math, Science, Biology, Physics, Chemistry, and English. If the user asks for a diagram or visual explanation, describe it clearly or suggest a visual aid.",
+        }
+      });
+      
+      res.json({ text: response.text });
+    } catch (err: any) {
+      console.error("Gemini answer error:", err);
+      res.status(500).json({ error: err.message || "Failed to generate AI answer" });
+    }
+  });
+
+  app.post("/api/gemini/diagram", async (req, res) => {
+    try {
+      const { prompt } = req.body;
+      const ai = getGeminiClient();
+      const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash-image",
+        contents: [{ text: `Educational diagram or illustration for: ${prompt}. Clear, academic style, labeled if necessary.` }],
+        config: {
+          imageConfig: {
+            aspectRatio: "1:1"
+          }
+        }
+      });
+
+      let imageUrl = null;
+      if (response.candidates?.[0]?.content?.parts) {
+        for (const part of response.candidates[0].content.parts) {
+          if (part.inlineData) {
+            imageUrl = `data:image/png;base64,${part.inlineData.data}`;
+            break;
+          }
+        }
+      }
+      res.json({ imageUrl });
+    } catch (err: any) {
+      console.error("Gemini diagram error:", err);
+      res.status(500).json({ error: err.message || "Failed to generate diagram" });
+    }
+  });
+
+  app.post("/api/gemini/quiz", async (req, res) => {
+    try {
+      const { subject } = req.body;
+      const ai = getGeminiClient();
+      const response = await ai.models.generateContent({
+        model: "gemini-3.5-flash",
+        contents: `Generate a 5-question multiple choice quiz for ${subject}. Return only valid JSON in the format: [{"question": "...", "options": ["...", "...", "...", "..."], "answer": 0}]`,
+        config: {
+          responseMimeType: "application/json"
+        }
+      });
+      
+      let quizData = [];
+      try {
+        quizData = JSON.parse(response.text || "[]");
+      } catch (parseErr) {
+        console.error("Quiz JSON parse error:", parseErr, "Text:", response.text);
+      }
+      res.json(quizData);
+    } catch (err: any) {
+      console.error("Gemini quiz error:", err);
+      res.status(500).json({ error: err.message || "Failed to generate quiz" });
+    }
   });
 
   // Vite middleware for development
