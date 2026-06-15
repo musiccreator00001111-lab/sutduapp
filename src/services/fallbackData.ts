@@ -393,7 +393,7 @@ export function getFallbackAnswer(prompt: string, studentContext?: { name: strin
 क्या आप अपने स्कूल (${school}) के लिए कोई विशेष डायग्राम या चक्र समझना चाहते हैं? मुझे प्रश्न लिखकर भेजें! 🔬`;
   }
 
-  return `### 🌟 स्टडी बडी AI सहायता (StudyBuddy Assistant)
+  return `### 🌟 Ascend Study सहायता (Ascend Study Assistant)
 
 नमस्ते **${name}**! मैं आपका पर्सनल स्टडी बडी हूँ (Class ${className}, ${school})। 
 
