@@ -34,17 +34,16 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      # 🛠️ यहाँ हमने नया स्टेप जोड़ा है जो करप्ट ग्रैडल फ़ाइल को ठीक कर देगा
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: 8.2
 
+      # 🔥 यही वो जादुई बदलाव है जो 100% सक्सेस देगा!
       - name: Build Android APK
         run: |
           cd android
-          chmod +x gradlew
-          ./gradlew assembleDebug
+          gradle assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
