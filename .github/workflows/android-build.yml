@@ -1,4 +1,4 @@
-name: Android Build
+Name: Android Build
 
 on:
   push:
@@ -13,16 +13,10 @@ jobs:
       - name: Checkout Source
         uses: actions/checkout@v4
 
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '21'
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: 22
           cache: npm
 
       - name: Install Dependencies
@@ -34,7 +28,19 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
-      - name: Build APK
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      # 🛠️ यहाँ हमने नया स्टेप जोड़ा है जो करप्ट ग्रैडल फ़ाइल को ठीक कर देगा
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: 8.2
+
+      - name: Build Android APK
         run: |
           cd android
           chmod +x gradlew
