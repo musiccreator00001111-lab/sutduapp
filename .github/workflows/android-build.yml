@@ -27,20 +27,18 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
-      # 🛠️ बदलाव 1: Java 17 को Java 21 पर अपग्रेड किया, जो इस नए bcprov जार फाइल एरर को पूरी तरह सपोर्ट करता है
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 21
 
-      # 🛠️ बदलाव 2: Gradle को भी लेटेस्ट 8.7 पर डाल दिया ताकि पुराना कैशे वाला झंझट ही खत्म हो जाए
+      # 🛠️ बदलाव: यहाँ वर्ज़न को 8.7 से बढ़ाकर 8.13 कर दिया है
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
         with:
-          gradle-version: 8.7
+          gradle-version: 8.13
 
-      # 🛠️ बदलाव 3: कैशे की वजह से फाइल लॉक न हो, इसलिए --no-daemon मोड में फ्रेश बिल्ड चलाया
       - name: Build Android APK
         run: |
           cd android
