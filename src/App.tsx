@@ -36,6 +36,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { getStudyAnswer, generateQuiz, generateStudyDiagram } from './services/geminiService';
 import { LANGUAGES, translate } from './services/translations';
+import { ProgressChart } from './components/ProgressChart';
 import type { AppLanguage } from './services/translations';
 import type { Note, ScheduleItem, Progress, ChatMessage, Subject, User as UserType, Group, GroupMessage, GroupNote } from './types';
 
@@ -1460,6 +1461,8 @@ export default function App() {
                       ))}
                     </div>
                   </section>
+
+                  <ProgressChart />
 
                   {/* VIRTUAL STUDY COMPANION - CHIMPU'S ISLAND */}
                   <section className="bg-gradient-to-br from-emerald-500/10 via-emerald-50/5 to-white p-5 rounded-3xl border border-emerald-100/60 shadow-sm space-y-4" id="study_pet_sanctuary">
