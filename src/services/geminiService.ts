@@ -28,8 +28,8 @@ async function callGeminiWithRetryAndFailover(
     contents: any;
     config?: any;
   },
-  retries = 3,
-  delay = 1000
+  retries = 5,
+  delay = 2000
 ): Promise<any> {
   const isImageModel = params.model.indexOf("image") !== -1;
   const modelsToTry = isImageModel 

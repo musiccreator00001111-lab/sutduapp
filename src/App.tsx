@@ -31,12 +31,15 @@ import {
   Clock,
   Maximize2,
   Volume2,
-  VolumeX
+  VolumeX,
+  Music
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { getStudyAnswer, generateQuiz, generateStudyDiagram } from './services/geminiService';
 import { LANGUAGES, translate } from './services/translations';
 import { ProgressChart } from './components/ProgressChart';
+import { StudyTimer } from './components/StudyTimer';
+import { HomeworkSolver } from './components/HomeworkSolver';
 import type { AppLanguage } from './services/translations';
 import type { Note, ScheduleItem, Progress, ChatMessage, Subject, User as UserType, Group, GroupMessage, GroupNote } from './types';
 
@@ -517,6 +520,7 @@ export default function App() {
   const [regSchool, setRegSchool] = useState('');
   const [regClass, setRegClass] = useState('6');
   const [regAvatar, setRegAvatar] = useState('🐼');
+  const [isTagMode, setIsTagMode] = useState(false);
 
   // Core local states
   const [user, setUser] = useState<UserType | null>(() => {
@@ -1104,21 +1108,51 @@ export default function App() {
   };
 
   return (
-    <div className="w-full h-full min-h-screen bg-slate-900 font-sans text-slate-800 flex justify-center items-center overflow-hidden py-0 md:py-6 relative" id="applet_canvas">
+    <div className={`w-full h-full min-h-screen ${isTagMode ? 'bg-black' : 'bg-slate-900'} font-sans ${isTagMode ? 'text-cyan-400' : 'text-slate-800'} flex justify-center items-center overflow-hidden py-0 md:py-6 relative`} id="applet_canvas">
       
       {/* Background Ambience */}
-      <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/40 via-slate-950 to-slate-950 pointer-events-none z-0" />
+      <div className={`absolute top-0 left-0 w-full h-full ${isTagMode ? 'bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-cyan-900/20 via-black to-black' : 'bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/40 via-slate-950 to-slate-950'} pointer-events-none z-0`} />
+
+      {/* Audio element for study beats */}
+      <audio id="study-audio" loop preload="none">
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg" />
+      </audio>
 
       {/* Dynamic Student Onboarding Gatekeeper check */}
       {!user ? (
         <div className="w-full max-w-md h-screen md:h-[90vh] bg-slate-50 md:rounded-3xl shadow-2xl flex flex-col overflow-y-auto p-6 relative z-20 border border-slate-800/10 scrollbar-hide">
           
           {/* Floating Settings & Language Control (Onboarding) */}
-          <div className="absolute top-4 left-4 z-50">
+          <div className="absolute top-4 left-4 z-50 flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setIsTagMode(!isTagMode)}
+              className={`p-2 rounded-full transition outline-none cursor-pointer ${isTagMode ? 'bg-cyan-950 text-cyan-400' : 'bg-white text-slate-500 hover:bg-slate-100'}`}
+              id="tag_mode_toggle"
+            >
+              <Zap className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const audio = document.getElementById('study-audio') as HTMLAudioElement;
+                if (audio) {
+                  if (audio.paused) {
+                    audio.play();
+                  } else {
+                    audio.pause();
+                  }
+                }
+              }}
+              className={`p-2 rounded-full transition outline-none cursor-pointer ${isTagMode ? 'bg-cyan-950 text-cyan-400' : 'bg-white text-slate-500 hover:bg-slate-100'}`}
+              id="audio_toggle"
+            >
+              <Music className="w-4 h-4" />
+            </button>
             <button
               type="button"
               onClick={() => setShowLanguageDropdown(!showLanguageDropdown)}
-              className="p-1 rounded-full hover:bg-slate-100 transition outline-none cursor-pointer text-slate-500"
+              className="p-2 rounded-full hover:bg-slate-100 transition outline-none cursor-pointer text-slate-500 bg-white"
               id="onboarding_lang_btn"
             >
               <MoreVertical className="w-4 h-4" />
@@ -1462,7 +1496,9 @@ export default function App() {
                     </div>
                   </section>
 
-                  <ProgressChart />
+                  <ProgressChart isTagMode={isTagMode} />
+
+                  <HomeworkSolver user={user} language={appLanguage} isTagMode={isTagMode} />
 
                   {/* VIRTUAL STUDY COMPANION - CHIMPU'S ISLAND */}
                   <section className="bg-gradient-to-br from-emerald-500/10 via-emerald-50/5 to-white p-5 rounded-3xl border border-emerald-100/60 shadow-sm space-y-4" id="study_pet_sanctuary">
@@ -1699,6 +1735,8 @@ export default function App() {
 
                     </div>
                   </section>
+                  
+                  <StudyTimer isTagMode={isTagMode} />
 
                   {/* Badges and Progress Statistics from Profile */}
                   <section className="bg-white p-4.5 rounded-3xl border border-slate-100 shadow-xs space-y-4">
