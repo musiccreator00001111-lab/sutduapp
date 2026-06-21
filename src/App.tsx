@@ -1776,6 +1776,14 @@ export default function App() {
                     </div>
                   </section>
 
+                  {/* Developer Credit */}
+                  <div className="text-center py-4 text-slate-500">
+                    <p className="text-[10px] font-medium">Developed by Rohit Yadav</p>
+                    <p className="text-[10px] font-bold text-indigo-500">
+                      <a href="https://www.instagram.com/rohit.Yadav.1.4" target="_blank" rel="noopener noreferrer">@rohit.Yadav.1.4</a>
+                    </p>
+                  </div>
+
                   {/* Subject Mastery Performance */}
                   <section className="space-y-3 pb-8">
                     <h2 className="text-xs font-extrabold text-slate-500 tracking-tight uppercase flex items-center">
