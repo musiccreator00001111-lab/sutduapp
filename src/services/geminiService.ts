@@ -1,14 +1,11 @@
 import { GoogleGenAI } from "@google/genai";
 import { FALLBACK_QUIZZES, getFallbackAnswer } from "./fallbackData";
 
-// Lazy-loaded client-side fallback (specifically for static serverless environments like Vercel)
+// यहाँ पर तुम्हारी असली चाबी सीधे हार्डकोड कर दी गई है ताकि मोबाइल ऐप में ये डायरेक्ट काम करे
 let clientAiInstance: any = null;
 function getClientAiInstance() {
   if (!clientAiInstance) {
-    const apiKey = (import.meta as any).env.VITE_GEMINI_API_KEY || "";
-    if (!apiKey) {
-      console.warn("Client Gemini API key missing, will use fallback data.");
-    }
+    const apiKey = "AIzaSyDJlHcJ6-ngas-aJTG_F6_to7eezFTeyxo"; 
     clientAiInstance = new GoogleGenAI({
       apiKey: apiKey,
       httpOptions: {
@@ -87,10 +84,6 @@ export async function getStudyAnswer(prompt: string, imageBase64?: string, stude
 
   // 2. Client-side fallback
   try {
-    const apiKey = (import.meta as any).env.VITE_GEMINI_API_KEY || "";
-    if (!apiKey) {
-      throw new Error("Client Gemini API key missing");
-    }
     const ai = getClientAiInstance();
     const parts: any[] = [{ text: prompt }];
     
@@ -163,10 +156,6 @@ export async function generateStudyDiagram(prompt: string) {
 
   // 2. Client-side fallback
   try {
-    const apiKey = (import.meta as any).env.VITE_GEMINI_API_KEY || "";
-    if (!apiKey) {
-      throw new Error("Client Gemini API key missing");
-    }
     const ai = getClientAiInstance();
     const response = await callGeminiWithRetryAndFailover(ai, {
       model: "gemini-2.5-flash-image",
@@ -215,10 +204,6 @@ export async function generateQuiz(subject: string, studentContext?: { name: str
 
   // 2. Client-side fallback
   try {
-    const apiKey = (import.meta as any).env.VITE_GEMINI_API_KEY || "";
-    if (!apiKey) {
-      throw new Error("Client Gemini API key missing");
-    }
     const ai = getClientAiInstance();
     const classText = studentContext ? `for grade/class ${studentContext.className}` : "";
     let langPromptText = `in English`;
