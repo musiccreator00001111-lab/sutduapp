@@ -344,10 +344,10 @@ export const FALLBACK_QUIZZES: Record<string, Record<'English' | 'Hindi', Fallba
 };
 
 export function getFallbackAnswer(prompt: string, studentContext?: { name: string; school: string; className: string }): string {
-  const name = studentContext?.name || "प्यारे छात्र";
-  const school = studentContext?.school || "आपके स्कूल";
-  const className = studentContext?.className || "आपकी कक्षा";
-
+  const name = studentContext?.name || 
+  const school = studentContext?.school || 
+  const className = studentContext?.className || 
+ const  fatherName = studentcontext?.fathername || 
   const lower = prompt.toLowerCase();
   
   if (lower.includes("math") || lower.includes("fraction") || lower.includes("algebra") || lower.includes("geometry") || lower.includes("समीकरण") || lower.includes("गणित")) {
